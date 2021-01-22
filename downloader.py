@@ -1,19 +1,15 @@
 import youtube_dl
 
 __ydl_opts = {
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'aac',
-            'preferredquality': '320'
-            }],
+        'format': 'bestvideo+bestaudio',
         'prefer_ffmpeg': True,
-        'outtmpl': '/mnt/wd_blue/Videos/Youtube_dl/%(title)s.%(ext)s'
+        'ignoreerrors': True,
+        'outtmpl': '/mnt/wd_blue/Videos/Youtube_dl/%(title)s.%(ext)s',
+        'ffmpeg_location': '/usr/local/bin/ffmpeg'
         }
-
-__ydl = youtube_dl.YoutubeDL(__ydl_opts)
 
 def Download(url):
     if isinstance(url, str):
         url = [url]
+    __ydl = youtube_dl.YoutubeDL(__ydl_opts)
     __ydl.download(url)
