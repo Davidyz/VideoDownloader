@@ -16,7 +16,7 @@ def help_command(update, context):
     '''
     Help message.
     '''
-    message = 'Current function:\n - Download videos from Youtube at max quality.'
+    message = 'Current function:\n - Download videos from Youtube at max quality by sending the url to the video.'
     update.message.reply_text(message)
 
 def Action(update, context):
