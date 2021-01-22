@@ -18,7 +18,7 @@ def help_command(update, context):
     '''
     Help message.
     '''
-    message = 'Current function:\n \- *Download videos* from Youtube at max quality by sending the url of the video;\n \- /list_downloading list all videos being downloaded.'
+    message = 'Current function:\n \- *Download videos* from Youtube at max quality by sending the url of the video;\n \- /list_downloading list all videos being downloaded\.'
     update.message.reply_text(message, parse_mode='MarkdownV2')
 
 def Action(update, context):
