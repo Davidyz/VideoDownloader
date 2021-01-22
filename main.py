@@ -1,4 +1,4 @@
-import telegram, logging, os, re
+import telegram, logging, os, re, psutil
 
 if os.path.isdir('/mnt/wd_blue/git/MyBot'):
     os.chdir('/mnt/wd_blue/git/MyBot')
@@ -75,6 +75,15 @@ def get_downloading(update, context):
         update.message.reply_text('No active jobs.')
     return result
 
+def sys_info(update, context):
+    '''
+    To display the system information.
+    '''
+    cpu = psutil.cpu_percent()
+    mem = psutil.virtual_memory().percent
+    temperature = psutil.sensors_temperatures()
+    update.message.reply_text('CPU utilization: {}%\nMemory utilization: {}%\nTemperature: {}°C'.format(cpu, mem, temperature))
+
 def main():
     updater = Updater("1593220412:AAGHOel6vvRY__QkfuX6wjy_GAspblBKBR8", use_context=True)
     dispatcher = updater.dispatcher
@@ -83,6 +92,7 @@ def main():
     dispatcher.add_handler(CommandHandler("help", help_command))
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, Action))
     dispatcher.add_handler(CommandHandler('list_downloading', get_downloading))
+    dispatcher.add_handler(CommandHandler("sys_info", sys_info))
     dispatcher.job_queue.run_repeating(checkFinished, interval=10)
 
     updater.start_polling()
