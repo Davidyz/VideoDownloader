@@ -2,7 +2,7 @@
 Description=Service for managing my Telegram Bot.
 
 [Service]
-ExecStart=/usr/bin/python3 /mnt/wd_blue/git/MyBot/test.py
+ExecStart=/usr/bin/python3 /mnt/wd_blue/git/MyBot/main.py
 
 [Install]
 WantedBy=multi-user.target
