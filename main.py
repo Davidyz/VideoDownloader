@@ -18,8 +18,8 @@ def help_command(update, context):
     '''
     Help message.
     '''
-    message = 'Current function:\n - Download videos from Youtube at max quality by sending the url to the video.'
-    update.message.reply_text(message)
+    message = 'Current function:\n \- *Download videos* from Youtube at max quality by sending the url of the video;\n \- /list_downloading list all videos being downloaded\.'
+    update.message.reply_text(message, parse_mode='MarkdownV2')
 
 def Action(update, context):
     '''
@@ -60,6 +60,21 @@ def checkFinished(context):
         downloads.remove(job)
         del job
 
+def get_downloading(update, context):
+    '''
+    To display the videos being downloaded.
+    '''
+    global downloads
+    result = []
+    for i in downloads:
+        if i.context[0].chat_data == context.chat_data:
+            result += i.get_downloading()
+    if result:
+        update.message.reply_text('\n'.join(result))
+    else:
+        update.message.reply_text('No active jobs.')
+    return result
+
 def main():
     updater = Updater("1593220412:AAGHOel6vvRY__QkfuX6wjy_GAspblBKBR8", use_context=True)
     dispatcher = updater.dispatcher
@@ -67,6 +82,7 @@ def main():
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help_command))
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, Action))
+    dispatcher.add_handler(CommandHandler('list_downloading', get_downloading))
     dispatcher.job_queue.run_repeating(checkFinished, interval=10)
 
     updater.start_polling()
