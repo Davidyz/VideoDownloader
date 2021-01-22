@@ -56,3 +56,6 @@ class Downloader:
 
     def all_finished(self):
         return not bool(self.__inProgress)
+
+    def get_downloading(self):
+        return [self.__inProgress[i] for i in self.__inProgress]
