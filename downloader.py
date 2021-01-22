@@ -1,4 +1,4 @@
-import youdube_dl
+import youtube_dl
 
 __ydl_opts = {
         'format': 'bestaudio/best',
@@ -11,7 +11,7 @@ __ydl_opts = {
         'outtmpl': '/mnt/wd_blue/Videos/Youtube_dl/%(title)s.%(ext)s'
         }
 
-__ydl = youdube_dl.YoutubeDL(ydl_opts)
+__ydl = youtube_dl.YoutubeDL(__ydl_opts)
 
 def Download(url):
     if isinstance(url, str):
