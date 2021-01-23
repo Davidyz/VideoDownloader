@@ -1,7 +1,4 @@
 import telegram, logging, os, re, psutil, settings
-
-if os.path.isdir('/mnt/wd_blue/git/MyBot'):
-    os.chdir('/mnt/wd_blue/git/MyBot')
 import downloader
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, JobQueue
