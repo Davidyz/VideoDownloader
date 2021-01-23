@@ -4,7 +4,7 @@ import downloader, authentication
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, JobQueue
 
 downloads = []
-AllowedUser = Filters.user(username=[i.replace('\n', '') for i in open('allowed_user.txt', 'r').readlines()])
+AllowedUser = Filters.user(username=[i.replace('\n', '') for i in open(os.sep.join([settings.CWD, 'allowed_user.txt']), 'r').readlines()])
 
 def start(update, context):
     '''
@@ -18,11 +18,11 @@ def add_user(update, context):
         # check for admin.
         AllowedUser.add_usernames([i.replace('@', '') for i in context.args])
 
-        with open('allowed_user.txt', 'r') as fin:
+        with open(os.sep.join([settings.CWD, 'allowed_user.txt']), 'r') as fin:
             allowed = set(fin.readlines())
         allowed |= set(context.args)
         
-        with open('allowed_user.txt', 'w') as fin:
+        with open(os.sep.join([settings.CWD, 'allowed_user.txt']), 'w') as fin:
             for i in allowed:
                 if i[-1] != '\n':
                     fin.write(i.replace('@', '') + '\n')
@@ -39,13 +39,13 @@ def remove_user(update, context):
         AllowedUser.remove_usernames([i.replace('@', '') for i in context.args])
         
         allowed = []
-        with open('allowed_user.txt', 'r') as fin:
+        with open(os.sep.join([settings.CWD, 'allowed_user.txt']), 'r') as fin:
             allowed = [i.replace('\n', '') for i in fin.readlines()]
         
         for i in context.args:
             if i.replace('\n', '').replace('@', '') in allowed:
                 allowed.remove(i.replace('\n', '').replace('@', ''))
-        with open('allowed_user.txt', 'w') as fin:
+        with open(os.sep.join([settings.CWD, 'allowed_user.txt']), 'w') as fin:
             for i in allowed:
                 fin.write(i + '\n')
         update.message.reply_text('Removed.')
