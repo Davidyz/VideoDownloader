@@ -134,7 +134,7 @@ def sys_info(update, context):
     '''
     cpu = psutil.cpu_percent()
     mem = psutil.virtual_memory().percent
-    temperature = psutil.sensors_temperatures()
+    temperature = round(sum([psutil.sensors_temperatures()['coretemp'][i][1] for i in range(psutil.cpu_count())]) / psutil.cpu_count(), 2)
     update.message.reply_text('CPU utilization: {}%\nMemory utilization: {}%\nTemperature: {}°C'.format(cpu, mem, temperature))
 
 def main():
