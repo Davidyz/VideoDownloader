@@ -1,15 +1,56 @@
 import telegram, logging, os, re, psutil, settings
-import downloader
+import downloader, authentication
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, JobQueue
 
 downloads = []
+AllowedUser = Filters.user(username=[i.replace('\n', '') for i in open('allowed_user.txt', 'r').readlines()])
 
 def start(update, context):
     '''
     Starting message.
     '''
     update.message.reply_text("Welcome to Davidyz's Bot!")
+
+def add_user(update, context):
+    ''
+    if authentication.validate(update.message.chat_id):
+        # check for admin.
+        AllowedUser.add_usernames([i.replace('@', '') for i in context.args])
+
+        with open('allowed_user.txt', 'r') as fin:
+            allowed = set(fin.readlines())
+        allowed |= set(context.args)
+        
+        with open('allowed_user.txt', 'w') as fin:
+            for i in allowed:
+                if i[-1] != '\n':
+                    fin.write(i.replace('@', '') + '\n')
+                else:
+                    fin.write(i.replace('@', ''))
+        update.message.reply_text('Added.')
+    else:
+        update.message.reply_text('You are unauthorized to perform this action.')
+
+def remove_user(update, context):
+    ''
+    if authentication.validate(update.message.chat_id):
+        # check for admin.
+        AllowedUser.remove_usernames([i.replace('@', '') for i in context.args])
+        
+        allowed = []
+        with open('allowed_user.txt', 'r') as fin:
+            allowed = [i.replace('\n', '') for i in fin.readlines()]
+        
+        for i in context.args:
+            if i.replace('\n', '').replace('@', '') in allowed:
+                allowed.remove(i.replace('\n', '').replace('@', ''))
+        with open('allowed_user.txt', 'w') as fin:
+            for i in allowed:
+                fin.write(i + '\n')
+        update.message.reply_text('Removed.')
+    else:
+        update.message.reply_text('You are unauthorized to perform this action.')
 
 def help_command(update, context):
     '''
@@ -91,10 +132,13 @@ def main():
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("help", help_command))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, Action))
-    dispatcher.add_handler(CommandHandler('list_downloading', get_downloading))
-    dispatcher.add_handler(CommandHandler("sys_info", sys_info))
+    dispatcher.add_handler(CommandHandler("help", help_command, filters=AllowedUser))
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command & AllowedUser, Action))
+    dispatcher.add_handler(CommandHandler('list_downloading', get_downloading, filters=AllowedUser))
+    dispatcher.add_handler(CommandHandler("sys_info", sys_info, filters=AllowedUser))
+    dispatcher.add_handler(CommandHandler('add_user', add_user))
+    dispatcher.add_handler(CommandHandler('remove_user', remove_user))
+
     dispatcher.job_queue.run_repeating(checkFinished, interval=10)
 
     updater.start_polling()

@@ -130,3 +130,6 @@ dmypy.json
 
 # local settings
 settings.py
+allowed_user.txt
+authorized
+README.pdf
