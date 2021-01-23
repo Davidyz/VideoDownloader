@@ -45,6 +45,7 @@ class Downloader:
                 title = youtube_dl.YoutubeDL(self.__ydl_opts).extract_info(url, download=False)['title']
                 process = subprocess.Popen(args=['youtube-dl', '-f', int(not audioOnly) * 'bestvideo+' + 'bestaudio', url, '-o',self.__ydl_opts['outtmpl'], '--output',os.sep.join([path, title])])
                 self.__inProgress[process.pid] = title
+                return process.pid
 
             elif site == 'bilibili':
                 # support bv only. working on URLs.
@@ -57,6 +58,7 @@ class Downloader:
                                                        'keep': False})
                 proc.start()
                 self.__inProgress[proc.pid] = title
+                return proc.pid
 
         elif isinstance(url, (list, tuple)):
             for i in url:
