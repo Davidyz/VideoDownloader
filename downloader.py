@@ -1,4 +1,4 @@
-import youtube_dl, os, subprocess, psutil, re, biget, multiprocessing
+import youtube_dl, os, subprocess, psutil, re, biget, multiprocessing, settings
 
 def check_type(url):
     y2b_Pattern = "https://(www\.)*youtu(\.)*be(\.com)*.*"
@@ -11,7 +11,7 @@ def check_type(url):
     return False
 
 class Downloader:
-    def __init__(self, update, context, defaultPath='/mnt/wd_blue/Videos/Youtube_dl/'):
+    def __init__(self, update, context, defaultPath=settings.DEFAULT_PATH):
         self.__ydl_opts = {
                 'format': 'bestvideo+bestaudio',
                 'prefer_ffmpeg': True,

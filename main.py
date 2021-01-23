@@ -1,4 +1,4 @@
-import telegram, logging, os, re, psutil
+import telegram, logging, os, re, psutil, settings
 
 if os.path.isdir('/mnt/wd_blue/git/MyBot'):
     os.chdir('/mnt/wd_blue/git/MyBot')
@@ -90,7 +90,7 @@ def sys_info(update, context):
     update.message.reply_text('CPU utilization: {}%\nMemory utilization: {}%\nTemperature: {}°C'.format(cpu, mem, temperature))
 
 def main():
-    updater = Updater("1593220412:AAGHOel6vvRY__QkfuX6wjy_GAspblBKBR8", use_context=True)
+    updater = Updater(settings.SECRETS, use_context=True)
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start))
