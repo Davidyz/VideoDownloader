@@ -27,11 +27,15 @@ def Action(update, context):
     '''
     global downloads
     message = update.message.text
-    if isVideoUrl(message):
-        update.message.reply_text("This is a youtube video. Trying to download.")
+    video_check = downloader.check_type(message)
+    if video_check:
+        update.message.reply_text("This is a {} video. Trying to download.".format(video_check[0].upper() + video_check[1:].lower()))
         dl = downloader.Downloader(update=update, context=context)
-        dl.download(message)
-        downloads.append(dl)
+        if dl.download(message, site=video_check):
+            downloads.append(dl)
+        else:
+            update.message.reply_text('This video source is not supported yet.')
+
     else:
         update.message.reply_text(update.message.text)
 
@@ -67,6 +71,7 @@ def get_downloading(update, context):
     global downloads
     result = []
     for i in downloads:
+        i.check_finished()
         if i.context[0].chat_data == context.chat_data:
             result += i.get_downloading()
     if result:

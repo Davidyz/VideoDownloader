@@ -1,0 +1,5 @@
+biget
+python-telegram-bot
+youtube-dl
+multiprocessing
+subprocess
