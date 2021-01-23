@@ -1,3 +1,5 @@
+import os
+import settings
 def validate(chatID):
     '''
     Check whether a user is the admin.
@@ -5,7 +7,7 @@ def validate(chatID):
     if not isinstance(chatID, str):
         chatID = str(chatID)
 
-    with open('authorized', 'r') as fin:
+    with open(os.sep.join([settings.CWD, 'authorized']), 'r') as fin:
         validated = [i.replace('\n', '') for i in fin.readlines()]
 
     return chatID in validated
@@ -17,7 +19,7 @@ def add(chatID):
     if validate(chatID):
         return True
 
-    with open('authorized', 'a') as fin:
+    with open(os.sep.join([settings.CWD, 'authorized']), 'a') as fin:
         fin.write(chatID + '\n')
         return True
     return False
