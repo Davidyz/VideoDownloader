@@ -52,6 +52,16 @@ def remove_user(update, context):
     else:
         update.message.reply_text('You are unauthorized to perform this action.')
 
+def list_user(update, text):
+    if authentication.validate(update.message.chat_id):
+        # check for admin.
+        with open(os.sep.join([settings.CWD, 'allowed_user.txt']), 'r') as fin:
+            users = tuple(i.replace('\n', '') for i in fin.readlines())
+
+        update.message.reply_text('Allowed users:\n' + '\n'.join(['@' + i for i in users]))
+    else:
+        update.message.reply_text('You are not authorized to perform this action.')
+
 def help_command(update, context):
     '''
     Help message.
@@ -138,6 +148,7 @@ def main():
     dispatcher.add_handler(CommandHandler("sys_info", sys_info, filters=AllowedUser))
     dispatcher.add_handler(CommandHandler('add_user', add_user))
     dispatcher.add_handler(CommandHandler('remove_user', remove_user))
+    dispatcher.add_handler(CommandHandler('list_user', list_user))
 
     dispatcher.job_queue.run_repeating(checkFinished, interval=10)
 
