@@ -1,0 +1,2 @@
+SECRETS = ''
+DEFAULT_PATH = '~'
