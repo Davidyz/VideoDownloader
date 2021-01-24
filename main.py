@@ -1,16 +1,18 @@
 import telegram, logging, os, re, psutil, settings
-import downloader, authentication
+import downloader, authentication, system, lang
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, JobQueue
 
 downloads = []
 AllowedUser = Filters.user(username=[i.replace('\n', '') for i in open(os.sep.join([settings.CWD, 'allowed_user.txt']), 'r').readlines()])
+Admin = Filters.user(username='David_yz')
+language = lang.en_UK
 
 def start(update, context):
     '''
     Starting message.
     '''
-    update.message.reply_text("Welcome to Davidyz's Bot!")
+    update.message.reply_text(language['welcome'])
 
 def add_user(update, context):
     ''
@@ -52,7 +54,20 @@ def remove_user(update, context):
     else:
         update.message.reply_text('You are unauthorized to perform this action.')
 
-def list_user(update, text):
+def set_lang(update, context):
+    global language
+    language_list = {
+            'chinese':lang.zh_CN,
+            'english':lang.en_UK,
+            }
+    if len(context.args) == 1 and context.args[0].lower() in language_list:
+        language = language_list[context.args[0].lower()]
+        update.message.reply_text(language['lang_updated'])
+
+    else:
+        update.message.reply_text(language['check_input'])
+
+def list_user(update, context):
     if authentication.validate(update.message.chat_id):
         # check for admin.
         with open(os.sep.join([settings.CWD, 'allowed_user.txt']), 'r') as fin:
@@ -67,7 +82,7 @@ def help_command(update, context):
     Help message.
     '''
     message = 'Current function:\n - Download videos from Youtube at max quality by sending the url of the video;\n - /list_downloading list all videos being downloaded.'
-    update.message.reply_text(message)
+    update.message.reply_text(language['help'])
 
 def Action(update, context):
     '''
@@ -77,7 +92,7 @@ def Action(update, context):
     message = update.message.text
     video_check = downloader.check_type(message)
     if video_check:
-        update.message.reply_text("This is a {} video. Trying to download.".format(video_check[0].upper() + video_check[1:].lower()))
+        update.message.reply_text(language['trying'].format(video_check[0].upper() + video_check[1:].lower()))
         dl = downloader.Downloader(update=update, context=context)
         if dl.download(message, site=video_check):
             downloads.append(dl)
@@ -103,7 +118,7 @@ def checkFinished(context):
     for job in finished:
         finished_downloads = job.finished
         for i in finished_downloads:
-            job.update.message.reply_text(text="<{}> downloaded.".format(finished_downloads[i]))
+            job.update.message.reply_text(text=language['finished_download'].format(finished_downloads[i]))
         if job.all_finished():
             empty_job.append(job)
 
@@ -123,9 +138,9 @@ def get_downloading(update, context):
         if i.context[0].chat_data == context.chat_data:
             result += i.get_downloading()
     if result:
-        update.message.reply_text('\n'.join(result))
+        update.message.reply_text('\n'.join([language['current_job']] + result))
     else:
-        update.message.reply_text('No active jobs.')
+        update.message.reply_text(language['no_job'])
     return result
 
 def sys_info(update, context):
@@ -137,6 +152,9 @@ def sys_info(update, context):
     temperature = round(sum([psutil.sensors_temperatures()['coretemp'][i][1] for i in range(psutil.cpu_count())]) / psutil.cpu_count(), 2)
     update.message.reply_text('CPU utilization: {}%\nMemory utilization: {}%\nTemperature: {}°C'.format(cpu, mem, temperature))
 
+def admin_help(update, context):
+    update.message.reply_text('/list_user\n/sys_info')
+
 def main():
     updater = Updater(settings.SECRETS, use_context=True)
     dispatcher = updater.dispatcher
@@ -145,10 +163,12 @@ def main():
     dispatcher.add_handler(CommandHandler("help", help_command, filters=AllowedUser))
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command & AllowedUser, Action))
     dispatcher.add_handler(CommandHandler('list_downloading', get_downloading, filters=AllowedUser))
-    dispatcher.add_handler(CommandHandler("sys_info", sys_info, filters=AllowedUser))
+    dispatcher.add_handler(CommandHandler("sys_info", sys_info, filters=Admin))
     dispatcher.add_handler(CommandHandler('add_user', add_user))
     dispatcher.add_handler(CommandHandler('remove_user', remove_user))
     dispatcher.add_handler(CommandHandler('list_user', list_user))
+    dispatcher.add_handler(CommandHandler('admin_help', admin_help, filters=Admin))
+    dispatcher.add_handler(CommandHandler('set_lang', set_lang, filters=AllowedUser))
 
     dispatcher.job_queue.run_repeating(checkFinished, interval=10)
 
