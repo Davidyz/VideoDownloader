@@ -1,4 +1,4 @@
-import youtube_dl, os, subprocess, psutil, re, biget, multiprocessing, settings
+import youtube_dl, os, subprocess, psutil, re, biget, multiprocessing, settings, requests
 
 def check_type(url):
     y2b_Pattern = "https://(www\.)*youtu(\.)*be(\.com)*.*"
@@ -6,7 +6,7 @@ def check_type(url):
     bv = 'BV.*'
     if re.match(y2b_Pattern, url) != None:
         return 'youtube'
-    if re.match(bv, url) != None:
+    if re.match(bili_pattern, url) != None:
         return 'bilibili'
     return False
 
@@ -29,6 +29,16 @@ def recurse_list(path):
 
         stack += new
     return stack
+
+def get_bv(url):
+    if 'bilibili.com' in url:
+        return url.split('/')[-1]
+    elif url[:2] == 'BV' and len(url) == 12:
+        return url
+    text = requests.get(url).text.strip()
+    for i in range(len(text)):
+        if text[i:i + 2] == 'BV':
+            return text[i:i + 12]
 
 class Downloader:
     def __init__(self, update, context, defaultPath=settings.DEFAULT_PATH):
@@ -70,7 +80,7 @@ class Downloader:
 
             elif site == 'bilibili':
                 # support bv only. working on URLs.
-                video = biget.Video(bv=url)
+                video = biget.Video(bv=get_bv(url))
                 video.access()
                 title = video.data['title']
                 proc = multiprocessing.Process(target=biget.Video.download, args=(video, ), 
