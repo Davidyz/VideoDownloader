@@ -73,7 +73,7 @@ class Downloader:
 
             if site == 'youtube':
                 title = youtube_dl.YoutubeDL(self.__ydl_opts).extract_info(url, download=False)['title']
-                process = subprocess.Popen(args=['youtube-dl', '-f', int(not audioOnly) * 'bestvideo+' + 'bestaudio', url, '-o',self.__ydl_opts['outtmpl'], '--output',os.sep.join([path, title])])
+                process = subprocess.Popen(args=['youtube-dl', '-f', int(not audioOnly) * 'bestvideo+' + 'bestaudio', url, '-o',self.__ydl_opts['outtmpl']])
                 self.__inProgress[process.pid] = title
                 self.process_name[process.pid] = psutil.Process(process.pid).name()
                 return process.pid

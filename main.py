@@ -118,7 +118,7 @@ def checkFinished(context):
     for job in finished:
         finished_downloads = job.finished
         for i in finished_downloads:
-            job.update.message.reply_text(text=language['finished_download'].format(finished_downloads[i]))
+            job.update.message.reply_text(text=language['finished_download'].format(finished_downloads[i]).replace("_哔哩哔哩 (゜-゜)つロ 干杯~-bilibili", ""))
         if job.all_finished():
             empty_job.append(job)
 
@@ -137,8 +137,9 @@ def get_downloading(update, context):
         i.check_finished()
         if i.context[0].chat_data == context.chat_data:
             result += i.get_downloading()
+    
     if result:
-        update.message.reply_text('\n'.join([language['current_job']] + result))
+        update.message.reply_text('\n'.join([language['current_job']] + [i.replace("_哔哩哔哩 (゜-゜)つロ 干杯~-bilibili", "") for i in result]))
     else:
         update.message.reply_text(language['no_job'])
     return result
