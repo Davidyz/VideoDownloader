@@ -2,6 +2,8 @@
 Description=Service for managing my Telegram Bot.
 
 [Service]
+Restart=on-failure
+RestartSec=5s
 ExecStart=/usr/bin/python3 /mnt/wd_blue/git/VideoDownloader/main.py
 
 [Install]
