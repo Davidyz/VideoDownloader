@@ -1,4 +1,4 @@
 biget
 python-telegram-bot
 youtube-dl
-subprocess
+sympy

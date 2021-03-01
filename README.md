@@ -8,7 +8,8 @@ _Current State:_
 * Download videos from 
 <a href="https://www.youtube.com/" target="_blank"> Youtube </a>
 and 
-<a href="https://www.bilibili.com/" target="_blank"> Bilibili </a>  
+<a href="https://www.bilibili.com/" target="_blank"> Bilibili </a>
+* If you send a LaTex expression to the bot, it will reply with the rendered image of the expression.
   
 _Next Step:_ 
 * process monitor/notification.  

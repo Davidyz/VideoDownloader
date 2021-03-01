@@ -1,4 +1,4 @@
-import telegram, logging, os, re, psutil, settings
+import telegram, logging, os, re, psutil, settings, sympy, time
 import downloader, authentication, system, lang
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, JobQueue
@@ -98,6 +98,12 @@ def Action(update, context):
             downloads.append(dl)
         else:
             update.message.reply_text('This video source is not supported yet.')
+    
+    elif check_math(message):
+        file_path = send_math(update.message.chat_id, string=message)
+        print(file_path)
+        context.bot.sendPhoto(chat_id=update.message.chat_id, photo=open(file_path, 'rb'))
+        os.system('rm "{}"'.format(file_path))
 
     else:
         update.message.reply_text(update.message.text)
@@ -143,6 +149,17 @@ def get_downloading(update, context):
     else:
         update.message.reply_text(language['no_job'])
     return result
+
+def check_math(string:str) -> bool:
+    return len(string) > 4 and string[:2] == '${' and string[-2:] == '}$'
+
+def send_math(chat_id, string):
+    path ='/tmp/VideoDownloader/'
+    if not os.path.isdir(path):
+        os.mkdir(path)
+    filename = path + str(chat_id) + str(int(time.time())) + '.png'
+    sympy.preview(string, viewer='file', filename=filename, dvioptions=['-D', '720'])
+    return filename
 
 def sys_info(update, context):
     '''
