@@ -138,7 +138,7 @@ def checkProcess(context):
     modified = False
     processes = []
     finished_processes = []
-    with open('process.txt', 'r') as fin:
+    with open(settings.CWD + 'process.txt', 'r') as fin:
         processes = [i.replace('\n', '') for i in fin.readlines()]
 
     for i in processes:
@@ -163,12 +163,12 @@ def checkProcess(context):
         context.bot.sendMessage(chat_id = settings.ADMIN_CHAT_ID, text=language['process_done'].format(i), parse_mode='markdown')
 
     if modified:
-        with open('process.txt', 'w') as fin:
+        with open(settings.CWD + 'process.txt', 'w') as fin:
             for i in processes:
                 fin.write(i + '\n')
 
 def show_ongoing(update, context):
-    with open('process.txt', 'r') as fin:
+    with open(settings.CWD + 'process.txt', 'r') as fin:
         processes = [' '.join(i.replace('\n', '').split(' ')[1:]) for i in fin.readlines()]
 
     message = ''
