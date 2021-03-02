@@ -11,7 +11,7 @@ command = sys.argv[1:]
 process = subprocess.Popen(command)
 pid, name = process.pid, ' '.join(process.args)
 
-with open('process.txt', 'a') as fin:
+with open(settings.CWD + 'process.txt', 'a') as fin:
     fin.write('{} {}\n'.format(pid, name))
 
 if __name__ == '__main__':
