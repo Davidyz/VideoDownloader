@@ -138,7 +138,7 @@ def checkProcess(context):
     modified = False
     processes = []
     finished_processes = []
-    with open('process.txt', 'r') as fin:
+    with open(settings.CWD + 'process.txt', 'r') as fin:
         processes = [i.replace('\n', '') for i in fin.readlines()]
 
     for i in processes:
@@ -153,7 +153,7 @@ def checkProcess(context):
         except (psutil.NoSuchProcess, ValueError) as e:
             processes.remove(i)
             if isinstance(e, psutil.NoSuchProcess):
-                finished_processes.append(name)
+                finished_processes.append(' '.join(name))
         
         finally:
             modified = True
@@ -163,9 +163,23 @@ def checkProcess(context):
         context.bot.sendMessage(chat_id = settings.ADMIN_CHAT_ID, text=language['process_done'].format(i), parse_mode='markdown')
 
     if modified:
-        with open('process.txt', 'w') as fin:
+        with open(settings.CWD + 'process.txt', 'w') as fin:
             for i in processes:
                 fin.write(i + '\n')
+
+def show_ongoing(update, context):
+    with open(settings.CWD + 'process.txt', 'r') as fin:
+        processes = [' '.join(i.replace('\n', '').split(' ')[1:]) for i in fin.readlines()]
+
+    message = ''
+    if processes:
+        message = language['ongoing_process']
+        for i in processes:
+            message += '\n`' + i + '`'
+    else:
+        message = language['no_job']
+
+    update.message.reply_text(message, parse_mode='markdown')
 
 def get_downloading(update, context):
     '''
@@ -220,6 +234,7 @@ def main():
     dispatcher.add_handler(CommandHandler('remove_user', remove_user))
     dispatcher.add_handler(CommandHandler('list_user', list_user))
     dispatcher.add_handler(CommandHandler('admin_help', admin_help, filters=Admin))
+    dispatcher.add_handler(CommandHandler('current_process', show_ongoing, filters=Admin))
     dispatcher.add_handler(CommandHandler('set_lang', set_lang, filters=AllowedUser))
 
     dispatcher.job_queue.run_repeating(checkDownloaded, interval=10)
