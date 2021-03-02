@@ -7,7 +7,8 @@ zh_CN = {
         'unsupported_video': '尚未支持此视频网站。',
         'welcome': '欢迎使用此Bot.',
         'lang_updated': '语言更新成功',
-        'check_input': '请检查输入'
+        'check_input': '请检查输入',
+        'process_done': '进程 `{}` 已完成。'
         }
 
 en_UK = {
@@ -19,5 +20,6 @@ en_UK = {
         'unsupported_video': 'This video source is not supported.',
         'welcome': 'Welcome to my bot',
         'lang_updated': 'Language updated.',
-        'check_input': 'Please check your input.'
+        'check_input': 'Please check your input.',
+        'process_done': 'Process `{}` is finished.'
         } 

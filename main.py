@@ -4,6 +4,7 @@ import downloader, authentication, system, lang
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, JobQueue
 
 downloads = []
+TRACK_TIMER = time.time()
 AllowedUser = Filters.user(username=[i.replace('\n', '') for i in open(os.sep.join([settings.CWD, 'allowed_user.txt']), 'r').readlines()])
 Admin = Filters.user(username='David_yz')
 language = lang.en_UK
@@ -112,7 +113,7 @@ def isVideoUrl(url):
     WebPattern = "https://(www\.)*youtu(\.)*be(\.com)*.*"
     return re.match(WebPattern, url) != None
 
-def checkFinished(context):
+def checkDownloaded(context):
     global downloads
     finished = []
     empty_job = []
@@ -132,6 +133,39 @@ def checkFinished(context):
         job = empty_job.pop(0)
         downloads.remove(job)
         del job
+
+def checkProcess(context):
+    modified = False
+    processes = []
+    finished_processes = []
+    with open('process.txt', 'r') as fin:
+        processes = [i.replace('\n', '') for i in fin.readlines()]
+
+    for i in processes:
+        pid, name = i.split(' ')[0], i.split(' ')[1:]
+        try:
+            pid = int(pid)
+            p = psutil.Process(pid)
+            if p.cmdline()[0] != name[0] or p.status() != 'running':
+                finished_processes.append(' '.join(p.cmdline()))
+                processes.remove(i)
+
+        except (psutil.NoSuchProcess, ValueError) as e:
+            processes.remove(i)
+            if isinstance(e, psutil.NoSuchProcess):
+                finished_processes.append(name)
+        
+        finally:
+            modified = True
+    
+    for i in finished_processes:
+        modified = True
+        context.bot.sendMessage(chat_id = settings.ADMIN_CHAT_ID, text=language['process_done'].format(i), parse_mode='markdown')
+
+    if modified:
+        with open('process.txt', 'w') as fin:
+            for i in processes:
+                fin.write(i + '\n')
 
 def get_downloading(update, context):
     '''
@@ -158,7 +192,7 @@ def send_math(chat_id, string):
     if not os.path.isdir(path):
         os.mkdir(path)
     filename = path + str(chat_id) + str(int(time.time())) + '.png'
-    sympy.preview(string, viewer='file', filename=filename, dvioptions=['-D', '720'])
+    sympy.preview(string, viewer='file', filename=filename, dvioptions=['-D', str(settings.LATEX_DPI)])
     return filename
 
 def sys_info(update, context):
@@ -188,7 +222,8 @@ def main():
     dispatcher.add_handler(CommandHandler('admin_help', admin_help, filters=Admin))
     dispatcher.add_handler(CommandHandler('set_lang', set_lang, filters=AllowedUser))
 
-    dispatcher.job_queue.run_repeating(checkFinished, interval=10)
+    dispatcher.job_queue.run_repeating(checkDownloaded, interval=10)
+    dispatcher.job_queue.run_repeating(checkProcess, interval=5)
 
     updater.start_polling()
     updater.idle()

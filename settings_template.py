@@ -1,3 +1,6 @@
 SECRETS = ''
 DEFAULT_PATH = '~'
 CWD = '~'
+
+LATEX_DPI = 1200
+ADMIN_CHAT_ID = 'chat_id'

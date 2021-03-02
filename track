@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+import sys, subprocess
+import settings
+
+if len(sys.argv) <= 1:
+    print('Please enter your command.')
+    sys.exit()
+
+command = sys.argv[1:]
+
+process = subprocess.Popen(command)
+pid, name = process.pid, ' '.join(process.args)
+
+with open('process.txt', 'a') as fin:
+    fin.write('{} {}\n'.format(pid, name))
+
+if __name__ == '__main__':
+    pass
+
