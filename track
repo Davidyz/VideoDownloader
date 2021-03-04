@@ -8,12 +8,19 @@ if len(sys.argv) <= 1:
 
 command = sys.argv[1:]
 
-process = subprocess.Popen(command)
-pid, name = process.pid, ' '.join(process.args)
+if command == ['-s']:
+    with open(settings.CWD + 'process.txt', 'r') as fin:
+        content = [i.replace('\n', '') for i in fin.readlines()]
+    
+    if content:
+        for i in content:
+            print(i)
+    else:
+        print('No active jobs.')
 
-with open(settings.CWD + 'process.txt', 'a') as fin:
-    fin.write('{} {}\n'.format(pid, name))
+else:
+    process = subprocess.Popen(command)
+    pid, name = process.pid, ' '.join(process.args)
 
-if __name__ == '__main__':
-    pass
-
+    with open(settings.CWD + 'process.txt', 'a') as fin:
+        fin.write('{} {}\n'.format(pid, name))
