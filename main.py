@@ -147,7 +147,7 @@ def checkProcess(context):
         try:
             pid = int(pid)
             p = psutil.Process(pid)
-            if p.cmdline()[0] != name[0] or p.status() in ('running', 'sleeping'):
+            if p.cmdline()[0] != name[0] or not (p.status() in ('running', 'sleeping')):
                 finished_processes.append(' '.join(p.cmdline()))
                 processes.remove(i)
 
