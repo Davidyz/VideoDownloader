@@ -4,6 +4,7 @@ import downloader, authentication, system, lang
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, JobQueue
 
 downloads = []
+bot = None
 TRACK_TIMER = time.time()
 AllowedUser = Filters.user(username=[i.replace('\n', '') for i in open(os.sep.join([settings.CWD, 'allowed_user.txt']), 'r').readlines()])
 Admin = Filters.user(username='David_yz')
@@ -107,7 +108,7 @@ def Action(update, context):
         os.system('rm "{}"'.format(file_path))
 
     else:
-        update.message.reply_text(update.message.text)
+        update.message.reply_text(update.message.text, parse_mode='markdown')
 
 def isVideoUrl(url):
     WebPattern = "https://(www\.)*youtu(\.)*be(\.com)*.*"
@@ -146,7 +147,7 @@ def checkProcess(context):
         try:
             pid = int(pid)
             p = psutil.Process(pid)
-            if p.cmdline()[0] != name[0] or p.status() != 'running':
+            if p.cmdline()[0] != name[0] or p.status() in ('running', 'sleeping'):
                 finished_processes.append(' '.join(p.cmdline()))
                 processes.remove(i)
 
@@ -219,10 +220,12 @@ def sys_info(update, context):
     update.message.reply_text('CPU utilization: {}%\nMemory utilization: {}%\nTemperature: {}°C'.format(cpu, mem, temperature))
 
 def admin_help(update, context):
-    update.message.reply_text('/list_user\n/sys_info')
+    update.message.reply_text('/add_user\n/remove_user\n/list_user\n/sys_info\n/current_process')
 
 def main():
+    global bot
     updater = Updater(settings.SECRETS, use_context=True)
+    bot = updater.bot
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start))
