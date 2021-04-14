@@ -55,7 +55,8 @@ class Downloader:
         self.update = update
         self.finished = {}
         self.supported_site = ('youtube', 'bilibili')
-        self.process_name = {}
+        self.downloading = {}
+        self.transcoding = []
 
     def download(self, url, path=None, audioOnly=False, site=None):
         '''
@@ -70,12 +71,16 @@ class Downloader:
                 site = check_type(url)
                 if not site:
                     return False
-
+            
+            title = str()
             if site == 'youtube':
-                title = youtube_dl.YoutubeDL(self.__ydl_opts).extract_info(url, download=False)['title']
+                try:
+                    title = youtube_dl.YoutubeDL(self.__ydl_opts).extract_info(url, download=False)['title']
+                except youtube_dl.DownloadError as d:
+                    return False
                 process = subprocess.Popen(args=['youtube-dl', '-f', int(not audioOnly) * 'bestvideo+' + 'bestaudio', url, '-o',self.__ydl_opts['outtmpl']])
                 self.__inProgress[process.pid] = title
-                self.process_name[process.pid] = psutil.Process(process.pid).name()
+                self.downloading[process.pid] = psutil.Process(process.pid).name()
                 return process.pid
 
             elif site == 'bilibili':
@@ -89,7 +94,7 @@ class Downloader:
                                                        'keep': False})
                 proc.start()
                 self.__inProgress[proc.pid] = title
-                self.process_name[proc.pid] = psutil.Process(proc.pid).name()
+                self.downloading[proc.pid] = psutil.Process(proc.pid).name()
                 return proc.pid
 
         elif isinstance(url, (list, tuple)):
@@ -104,7 +109,7 @@ class Downloader:
         for i in self.__inProgress:
             try:
                 # the process id still exists. either incomplete or different process with same pid.
-                if psutil.Process(i).name() == self.process_name[i] and psutil.Process(i).status() != 'zombie':
+                if psutil.Process(i).name() == self.downloading[i] and psutil.Process(i).status() != 'zombie':
                     pass
                 else:
                     finished[i] = self.__inProgress.get(i)
@@ -112,9 +117,19 @@ class Downloader:
                 # process finished.
                 finished[i] = self.__inProgress.get(i)
 
+        for i in self.transcoding:
+            try:
+                if psutil.Process(i).name() == 'ffmpeg' and psutil.Process(i).status() != 'zombie':
+                    pass
+                else:
+                    finished[i] = self.transcoding.get(i)
+            except psutil.NoSuchProcess:
+                finished[i] = self.transcoding.get(i)
+
         for i in finished:
             self.__inProgress.pop(i)
-            self.process_name.pop(i)
+            self.downloading.pop(i)
+            self.transcoding.pop(i)
             if os.path.isdir(os.sep.join([self.defaultPath, finished[i]])):
                 root = os.sep.join([self.defaultPath, finished[i]])
                 files = recurse_list(root)
@@ -127,6 +142,19 @@ class Downloader:
         self.finished.update(finished)
 
         return finished
+
+    def transcode(self, path, title=None):
+        if os.path.isdir(path):
+            files = recurse_list(path)
+        elif os.path.isfile(path):
+            files = [path]
+
+        for i in files:
+            original_format = i.split('.')[-1]
+            new_filename = i.replace(original_format, '.h265.' + original_format)
+            command = 'ffmpeg -v 0 -i "{source}" -c:v libx265 -c:a copy -q 0 -y "{target}"'.format(source=i, target=new_filename)
+            process = subprocess.Popen(command.split(' '))
+            self.transcoding[process.pid] = title
 
     def all_finished(self):
         return not bool(self.__inProgress)
