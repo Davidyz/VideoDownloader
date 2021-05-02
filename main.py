@@ -214,10 +214,20 @@ def sys_info(update, context):
     '''
     To display the system information.
     '''
+    def h(n):
+        if n < 1024:
+            return str(n) + 'B'
+        n /= 1024
+        if n < 1024:
+            return str(round(n, 2)) + 'M'
+        return str(round(n / 1024, 2)) + 'G'
+    
     cpu = psutil.cpu_percent()
     mem = psutil.virtual_memory().percent
-    temperature = round(sum([psutil.sensors_temperatures()['coretemp'][i][1] for i in range(psutil.cpu_count())]) / psutil.cpu_count(), 2)
-    update.message.reply_text('CPU utilization: {}%\nMemory utilization: {}%\nTemperature: {}°C'.format(cpu, mem, temperature))
+    temperature = round(sum([psutil.sensors_temperatures()['coretemp'][i][1] for i in range(len(psutil.sensors_temperatures()['coretemp']))]) / len(psutil.sensors_temperatures()['coretemp']), 2)
+    swap = "{}/{}".format(*map(h, reversed(psutil.swap_memory()[:2])))
+    message = 'CPU utilization: {cpu}%\nMemory utilization: {mem}%\nSwap utilization: {swap}\nTemperature: {temp}°C\n'.format(cpu=cpu, mem=mem, swap=swap, temp=temperature)
+    update.message.reply_text(message)
 
 def admin_help(update, context):
     update.message.reply_text('/add_user\n/remove_user\n/list_user\n/sys_info\n/current_process')
