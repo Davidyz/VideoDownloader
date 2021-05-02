@@ -220,6 +220,7 @@ def sys_info(update, context):
         n /= 1024
         if n < 1024:
             return str(n) + 'K'
+        n /= 1024
         if n < 1024:
             return str(round(n, 2)) + 'M'
         return str(round(n / 1024, 2)) + 'G'
@@ -228,7 +229,7 @@ def sys_info(update, context):
     mem = "{}/{}".format(*map(h, reversed(psutil.virtual_memory()[:2])))
     temperature = round(sum([psutil.sensors_temperatures()['coretemp'][i][1] for i in range(len(psutil.sensors_temperatures()['coretemp']))]) / len(psutil.sensors_temperatures()['coretemp']), 2)
     swap = "{}/{}".format(*map(h, reversed(psutil.swap_memory()[:2])))
-    message = 'CPU utilization: {cpu}%\nMemory utilization: {mem}%\nSwap utilization: {swap}\nTemperature: {temp}°C\n'.format(cpu=cpu, mem=mem, swap=swap, temp=temperature)
+    message = 'CPU utilization: {cpu}%\nMemory utilization: {mem}\nSwap utilization: {swap}\nTemperature: {temp}°C\n'.format(cpu=cpu, mem=mem, swap=swap, temp=temperature)
     update.message.reply_text(message)
 
 def admin_help(update, context):
