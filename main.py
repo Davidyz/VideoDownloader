@@ -220,6 +220,7 @@ def sys_info(update, context):
         n /= 1024
         if n < 1024:
             return str(n) + 'K'
+        n /= 1024
         if n < 1024:
             return str(round(n, 2)) + 'M'
         return str(round(n / 1024, 2)) + 'G'
