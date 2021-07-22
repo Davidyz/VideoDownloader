@@ -2,3 +2,4 @@ biget
 python-telegram-bot
 youtube-dl
 sympy
+pysocks

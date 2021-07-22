@@ -237,7 +237,10 @@ def admin_help(update, context):
 
 def main():
     global bot
-    updater = Updater(settings.SECRETS, use_context=True)
+    request_kwargs = {}
+    if settings.PROXY.split('://')[0] in ('http', 'https', 'socks5'):
+        request_kwargs['proxy_url'] = settings.PROXY
+    updater = Updater(settings.SECRETS, use_context=True, request_kwargs=request_kwargs)
     bot = updater.bot
     dispatcher = updater.dispatcher
 
