@@ -1,4 +1,5 @@
 import youtube_dl, os, subprocess, psutil, re, biget, multiprocessing, settings, requests
+from typing import List
 
 def check_type(url):
     y2b_Pattern = "https://(www\.)*youtu(\.)*be(\.com)*.*"
@@ -78,7 +79,13 @@ class Downloader:
                     title = youtube_dl.YoutubeDL(self.__ydl_opts).extract_info(url, download=False)['title']
                 except youtube_dl.DownloadError as d:
                     return False
-                process = subprocess.Popen(args=['youtube-dl', '-f', int(not audioOnly) * 'bestvideo+' + 'bestaudio', url, '-o',self.__ydl_opts['outtmpl']])
+                command: List[str] = ['youtube-dl', '-f', int(not audioOnly) * 'bestvideo+' + 'bestaudio', url, '-o',self.__ydl_opts['outtmpl']]
+                if settings.PROXY != '' and settings.PROXY.split("://")[0] in ('http', 'socks5'):
+                    # passes socks5 or http proxy to the command line.
+                    command.insert(1, '--proxy')
+                    command.insert(2, settings.PROXY)
+
+                process = subprocess.Popen(args=command)
                 self.__inProgress[process.pid] = title
                 self.downloading[process.pid] = psutil.Process(process.pid).name()
                 return process.pid
