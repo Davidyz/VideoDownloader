@@ -1,5 +1,5 @@
 biget
 python-telegram-bot
-youtube-dl
+yt-dlp
 sympy
 pysocks
