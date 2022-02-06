@@ -17,9 +17,7 @@ TRACK_TIMER = time.time()
 AllowedUser = Filters.user(
     username=[
         i.replace("\n", "")
-        for i in open(
-            os.sep.join([settings.CWD, "allowed_user.txt"]), "r"
-        ).readlines()
+        for i in open(os.sep.join([settings.CWD, "allowed_user.txt"]), "r").readlines()
     ]
 )
 Admin = Filters.user(username="David_yz")
@@ -51,9 +49,7 @@ def add_user(update, context) -> None:
                     fin.write(i.replace("@", ""))
         update.message.reply_text("Added.")
     else:
-        update.message.reply_text(
-            "You are unauthorized to perform this action."
-        )
+        update.message.reply_text("You are unauthorized to perform this action.")
 
 
 def remove_user(update, context):
@@ -74,9 +70,7 @@ def remove_user(update, context):
                 fin.write(i + "\n")
         update.message.reply_text("Removed.")
     else:
-        update.message.reply_text(
-            "You are unauthorized to perform this action."
-        )
+        update.message.reply_text("You are unauthorized to perform this action.")
 
 
 def set_lang(update, context):
@@ -103,9 +97,7 @@ def list_user(update, context):
             "Allowed users:\n" + "\n".join(["@" + i for i in users])
         )
     else:
-        update.message.reply_text(
-            "You are not authorized to perform this action."
-        )
+        update.message.reply_text("You are not authorized to perform this action.")
 
 
 def help_command(update, context):
@@ -125,9 +117,7 @@ def Action(update, context):
     is_video = downloader.check_type(message)
     if is_video:
         update.message.reply_text(
-            language["trying"].format(
-                is_video[0].upper() + is_video[1:].lower()
-            )
+            language["trying"].format(is_video[0].upper() + is_video[1:].lower())
         )
         dl = downloader.Downloader(update=update, context=context)
         if dl.download(message, site=is_video):
@@ -190,9 +180,7 @@ def checkProcess(context):
         try:
             pid = int(pid)
             p = psutil.Process(pid)
-            if p.cmdline()[0] != name[0] or not (
-                p.status() in ("running", "sleeping")
-            ):
+            if p.cmdline()[0] != name[0] or not (p.status() in ("running", "sleeping")):
                 finished_processes.append(" ".join(p.cmdline()))
                 processes.remove(i)
 
@@ -221,8 +209,7 @@ def checkProcess(context):
 def show_ongoing(update, context):
     with open(settings.CWD + "process.txt", "r") as fin:
         processes = [
-            " ".join(i.replace("\n", "").split(" ")[1:])
-            for i in fin.readlines()
+            " ".join(i.replace("\n", "").split(" ")[1:]) for i in fin.readlines()
         ]
 
     message = ""
@@ -325,16 +312,12 @@ def main():
     request_kwargs = {}
     if settings.PROXY.split("://")[0] in ("http", "https", "socks5"):
         request_kwargs["proxy_url"] = settings.PROXY
-    updater = Updater(
-        settings.SECRETS, use_context=True, request_kwargs=request_kwargs
-    )
+    updater = Updater(settings.SECRETS, use_context=True, request_kwargs=request_kwargs)
     bot = updater.bot
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(
-        CommandHandler("help", help_command, filters=AllowedUser)
-    )
+    dispatcher.add_handler(CommandHandler("help", help_command, filters=AllowedUser))
     dispatcher.add_handler(
         MessageHandler(Filters.text & ~Filters.command & AllowedUser, Action)
     )
@@ -345,15 +328,11 @@ def main():
     dispatcher.add_handler(CommandHandler("add_user", add_user))
     dispatcher.add_handler(CommandHandler("remove_user", remove_user))
     dispatcher.add_handler(CommandHandler("list_user", list_user))
-    dispatcher.add_handler(
-        CommandHandler("admin_help", admin_help, filters=Admin)
-    )
+    dispatcher.add_handler(CommandHandler("admin_help", admin_help, filters=Admin))
     dispatcher.add_handler(
         CommandHandler("current_process", show_ongoing, filters=Admin)
     )
-    dispatcher.add_handler(
-        CommandHandler("set_lang", set_lang, filters=AllowedUser)
-    )
+    dispatcher.add_handler(CommandHandler("set_lang", set_lang, filters=AllowedUser))
 
     dispatcher.job_queue.run_repeating(checkDownloaded, interval=10)
     dispatcher.job_queue.run_repeating(checkProcess, interval=5)
