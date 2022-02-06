@@ -1,5 +1,6 @@
-import telegram, logging, os, re, psutil, settings, sympy, time
+import os, re, psutil, settings, sympy, time
 import downloader, authentication, system, lang
+
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, JobQueue
 
@@ -10,13 +11,13 @@ AllowedUser = Filters.user(username=[i.replace('\n', '') for i in open(os.sep.jo
 Admin = Filters.user(username='David_yz')
 language = lang.en_UK
 
-def start(update, context):
+def start(update, context) -> None:
     '''
     Starting message.
     '''
     update.message.reply_text(language['welcome'])
 
-def add_user(update, context):
+def add_user(update, context) -> None:
     ''
     if authentication.validate(update.message.chat_id):
         # check for admin.
@@ -92,11 +93,11 @@ def Action(update, context):
     '''
     global downloads
     message = update.message.text
-    video_check = downloader.check_type(message)
-    if video_check:
-        update.message.reply_text(language['trying'].format(video_check[0].upper() + video_check[1:].lower()))
+    is_video = downloader.check_type(message)
+    if is_video:
+        update.message.reply_text(language['trying'].format(is_video[0].upper() + is_video[1:].lower()))
         dl = downloader.Downloader(update=update, context=context)
-        if dl.download(message, site=video_check):
+        if dl.download(message, site=is_video):
             downloads.append(dl)
         else:
             update.message.reply_text('This video source is not supported yet.')
@@ -226,7 +227,7 @@ def sys_info(update, context):
         return str(round(n / 1024, 2)) + 'G'
     
     cpu = psutil.cpu_percent()
-    mem = "{}/{}".format(*map(h, reversed(psutil.virtual_memory()[:2])))
+    mem = "{}/{}".format(*map(h, reversed(psutil.virtual_memory().used)))
     temperature = round(sum([psutil.sensors_temperatures()['coretemp'][i][1] for i in range(len(psutil.sensors_temperatures()['coretemp']))]) / len(psutil.sensors_temperatures()['coretemp']), 2)
     swap = "{}/{}".format(*map(h, reversed(psutil.swap_memory()[:2])))
     message = 'CPU utilization: {cpu}%\nMemory utilization: {mem}\nSwap utilization: {swap}\nTemperature: {temp}°C\n'.format(cpu=cpu, mem=mem, swap=swap, temp=temperature)

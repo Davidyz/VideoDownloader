@@ -1,4 +1,4 @@
-import youtube_dl, os, subprocess, psutil, re, biget, multiprocessing, settings, requests
+import os, subprocess, psutil, re, biget, multiprocessing, settings, requests
 from typing import List
 
 def check_type(url):
