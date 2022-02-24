@@ -297,7 +297,7 @@ def sys_info(update, context):
             return str(round(n, 2)) + "M"
         return str(round(n / 1024, 2)) + "G"
 
-    cpu = sum(sorted(psutil.cpu_percent() for i in range(10))[1:9]) / 10
+    cpu = psutil.cpu_percent(1)
     mem = "{}/{}".format(
         *map(h, (psutil.virtual_memory().used, psutil.virtual_memory().total))
     )
